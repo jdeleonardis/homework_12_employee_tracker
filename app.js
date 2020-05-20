@@ -1,11 +1,9 @@
 const inquirer = require("inquirer");
-//const mysql = require("mysql");
+const mysql = require("mysql");
 var figlet = require('figlet');
 const connection = require("./data/connection");
 const data = require("./data/data");
-
-//require('console.table');
-
+const cTable = require('console.table');
 
 
 init();
@@ -94,4 +92,10 @@ async function appProcess() {
                 break;
         }
     });
+}
+
+async function viewAllEmployees(){
+    const viewEmp = await data.viewAllEmployees();
+    console.table(viewEmp);
+    appProcess();
 }
