@@ -52,3 +52,13 @@ delete from employee where id = 11;
 
 select * from employee;
 select * from role;
+
+-- salary for a department
+select sum(r.salary)
+from department d
+inner join role r on d.id = r.department_id
+inner join employee e on r.id = e.role_id
+where d.id = 3
+
+
+

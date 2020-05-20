@@ -82,6 +82,18 @@ class Data {
         //console.log(answer.id + " " + answer.role_id)
         return this.connection.query("update employee SET role_id = ? where id = ?", [answer.role_id,answer.id])
     }
+
+    updateEmployeeManager(answer) {
+        return this.connection.query("update employee SET manager_id = ? where id = ?", [answer.manager_id,answer.id])
+    }
+
+    viewBudgetByDepartment(id) {
+        return this.connection.query(`select d.name, sum(r.salary) totalSalary
+        from department d
+        inner join role r on d.id = r.department_id
+        inner join employee e on r.id = e.role_id
+        where d.id = ?`,id) 
+    }
 }
 
 module.exports = new Data(connection);

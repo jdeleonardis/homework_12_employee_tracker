@@ -39,7 +39,7 @@ async function appProcess() {
                 "Delete Employee",
                 "Update Employee's Role", 
                 "Update Employee's Manager",
-                "View Budget Of Department",
+                "View Budget of Department",
                 "Exit"
             ],
         }, 
@@ -275,4 +275,69 @@ async function updateEmployeeRole(){
         console.log("Employee's role has been updated in the employee tracker database.")
         appProcess();     
     })    
+}
+
+async function updateEmployeeManager(){
+    let getEmployees = await data.getEmployeeNamesAndIds();
+    const employeeChoice = getEmployees.map(({ Name, id }) => ({
+        name: Name,
+        value: id
+    }));
+
+    const getManagerList = await data.getManagerList();    
+    const managerList = getManagerList.map(({ Name, Title, id }) => ({    
+        name: Name + ", " + Title,
+        value: id
+    }));    
+
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "id",
+            message: "Which employee would you like to update?",
+            choices: employeeChoice
+        },
+        {
+            type: "list",
+            name: "manager_id",
+            message: "Which manager?",
+            choices: managerList
+        },        
+    ])
+    .then(function(answer) {
+        // console.log(answer.id + " " + answer.manager_id);
+        data.updateEmployeeManager(answer);        
+        console.log("Employee's role has been updated in the employee tracker database.")
+        appProcess();     
+    })  
+}
+
+async function viewBudgetByDepartment() {
+    let getDepartments = await data.getDepartments();
+    const departmentChoice = getDepartments.map(({ name, id }) => ({
+        name: name,
+        value: id
+    }));
+
+    //console.log(departmentChoice);
+
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "id",
+            message: "What department would you like budget information?",
+            choices: departmentChoice
+        },
+    ])
+    .then(async function(answer) {
+        //console.log(answer);
+        const returnValue = await data.viewBudgetByDepartment(answer.id); 
+        const mappedReturn = returnValue.map(({ name, totalSalary }) => ({    
+             name: name,
+             total: totalSalary
+         })); 
+        
+        console.log(`The ${mappedReturn[0].name} department's total budget is $ ${mappedReturn[0].total}.`)
+        appProcess();     
+    }) 
 }
