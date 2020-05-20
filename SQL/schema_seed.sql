@@ -41,7 +41,7 @@ VALUES ('Sales'),
 
 INSERT INTO role (title, salary, department_id)
  VALUES ('Salesperson',80000.00, 1),
- ('Accoutant',70000, 2),
+ ('Accountant',70000, 2),
  ('Warehouse Guy',50000, 3),
  ('Human Resources Tech',70000, 4),
  ('Manager Sales',120000, 1),

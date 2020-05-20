@@ -37,8 +37,6 @@ async function appProcess() {
                 "Add Role",
                 "Add Department",
                 "Delete Employee",
-                "Delete Role",
-                "Delete Department",                                                
                 "Update Employee's Role", 
                 "Update Employee's Manager",
                 "View Budget Of Department",
@@ -58,7 +56,7 @@ async function appProcess() {
                 viewAllRoles();
                 break;
             case "View Employees By Manager":
-                employeesByManager();
+                viewEmployeesByManager();
                 break;
             case "Add Employee":
                 addEmployee();
@@ -72,12 +70,6 @@ async function appProcess() {
             case "Delete Employee":
                 deleteEmployee();
                 break;                
-            case "Delete Role":
-                deleteRole(); //gonna need extra code
-                break;
-            case "Delete Department":
-                deleteDepartment(); //gonna need extra code
-                break;
             case "Update Employee's Role":
                 updateEmployeeRole();
                 break;
@@ -98,4 +90,189 @@ async function viewAllEmployees(){
     const viewEmp = await data.viewAllEmployees();
     console.table(viewEmp);
     appProcess();
+}
+
+async function viewAllDepartments(){
+    const viewDept = await data.viewAllDepartments();
+    console.table(viewDept);
+    appProcess();
+}
+
+async function viewAllRoles(){
+    const viewRoles = await data.viewAllRoles();
+    console.table(viewRoles);
+    appProcess();
+}
+
+async function viewEmployeesByManager(){
+    const getManagerList = await data.getManagerList();
+    //console.log(getManagerList); //id/Name/Title
+    const managerList = getManagerList.map(({ Name, Title, id }) => ({    
+        name: Name + ", " + Title,
+        value: id
+    }));
+    
+    await inquirer.prompt([
+        {
+            type: "list",
+            name: "managerID",
+            message: "Which manager's employees would you like to view?",
+            choices: managerList
+        }
+    ]
+    )
+    .then(async function(answers) {
+        let managerID = answers.managerID;        
+        const employeesByManagerID = await data.viewEmployeesByManagerID(managerID);
+        console.table(employeesByManagerID);
+        appProcess();     
+    })    
+}
+
+async function addEmployee(){
+    let getRoles = await data.getRoles();
+    //console.log(getRoles);
+    const roleChoices = getRoles.map(({ title, id }) => ({
+        name: title,
+        value: id
+    }));
+
+    const getManagerList = await data.getManagerList();    
+    const managerList = getManagerList.map(({ Name, Title, id }) => ({    
+        name: Name + ", " + Title,
+        value: id
+    }));
+
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "first_name",
+            message: "What is the employee's first name",
+        },
+        {
+            type: "input",
+            name: "last_name",
+            message: "What is the employee's last name",
+        },
+        {
+            type: "list",
+            name: "role_id",
+            message: "What is the employee's role?",
+            choices: roleChoices         
+        },
+        {
+            type: "list",
+            name: "manager_id",
+            message: "Which manager?",
+            choices: managerList
+        },        
+    ])
+    .then(function(answer) {
+        data.addEmployee(answer);        
+        console.log("Employee has been added to the employee tracker database.")
+        appProcess();     
+    }) 
+}
+
+async function addRole(){
+    let getDepartments = await data.getDepartments();
+    const departmentChoice = getDepartments.map(({ name, id }) => ({
+        name: name,
+        value: id
+    }));
+
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "title",
+            message: "What is the title of the role?",
+        },  
+        {
+            type: "input",
+            name: "salary",
+            message: "What is the salary of the role?",
+        },
+        {
+            type: "list",
+            name: "department_id",
+            message: "What department is the role in?",
+            choices: departmentChoice
+        },
+    ])
+    .then(function(answer) {
+        data.addRole(answer);        
+        console.log("Role has been added to the employee tracker database.")
+        appProcess();     
+    }) 
+}
+
+async function addDepartment(){
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "What is the name of the department?",
+        },  
+    ])
+    .then(function(answer) {
+        data.addDepartment(answer);        
+        console.log("Department has been added to the employee tracker database.")
+        appProcess();     
+    })    
+}
+
+async function deleteEmployee(){
+    let getEmployees = await data.getEmployeeNamesAndIds();
+    const employeeChoice = getEmployees.map(({ Name, id }) => ({
+        name: Name,
+        value: id
+    }));
+
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "id",
+            message: "Which employee would you like to delete?",
+            choices: employeeChoice
+        },
+    ])
+    .then(function(answer) {
+        data.deleteEmployee(answer.id);        
+        console.log("Employee has been deleted from the employee tracker database.")
+        appProcess();     
+    }) 
+}
+
+async function updateEmployeeRole(){
+    let getEmployees = await data.getEmployeeNamesAndIds();
+    const employeeChoice = getEmployees.map(({ Name, id }) => ({
+        name: Name,
+        value: id
+    }));
+
+    let getRoles = await data.getRoles();
+    const roleChoices = getRoles.map(({ title, id }) => ({
+        name: title,
+        value: id
+    }));    
+
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "id",
+            message: "Which employee would you like to update?",
+            choices: employeeChoice
+        },
+        {
+            type: "list",
+            name: "role_id",
+            message: "Which role would you like to give the employee?",
+            choices: roleChoices
+        },        
+    ])
+    .then(function(answer) {
+        data.updateEmployeeRole(answer);        
+        console.log("Employee's role has been updated in the employee tracker database.")
+        appProcess();     
+    })    
 }
