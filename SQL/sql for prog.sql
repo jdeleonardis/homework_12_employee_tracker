@@ -58,7 +58,12 @@ select sum(r.salary)
 from department d
 inner join role r on d.id = r.department_id
 inner join employee e on r.id = e.role_id
-where d.id = 3
+where d.id = 3;
 
+
+insert into employee(first_name, last_name, role_id)
+values ("test","test",1);
+
+select * from employee
 
 

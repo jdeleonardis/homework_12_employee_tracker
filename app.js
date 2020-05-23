@@ -138,21 +138,27 @@ async function addEmployee(){
     }));
 
     const getManagerList = await data.getManagerList();    
-    const managerList = getManagerList.map(({ Name, Title, id }) => ({    
+    let managerList = getManagerList.map(({ Name, Title, id }) => ({    
         name: Name + ", " + Title,
         value: id
-    }));
+    }));  
+
+    //added if no manager is necessary
+    const newManager = {name: "No Manager", value: 999};
+    managerList.push(newManager);
 
     inquirer.prompt([
         {
             type: "input",
             name: "first_name",
             message: "What is the employee's first name",
+            validate: validateEmptyString,
         },
         {
             type: "input",
             name: "last_name",
             message: "What is the employee's last name",
+            validate: validateEmptyString,            
         },
         {
             type: "list",
@@ -167,9 +173,16 @@ async function addEmployee(){
             choices: managerList
         },        
     ])
-    .then(function(answer) {
-        data.addEmployee(answer);        
-        console.log("Employee has been added to the employee tracker database.")
+    .then(function(answer) {        
+        //if user selected 'no manager', send to a slightly different function that includes null for the manager id        
+        if (answer.manager_id == 999) {            
+             data.addEmployeeNoManager(answer);                    
+        }
+        else {
+             data.addEmployee(answer);        
+        }
+
+        // console.log("Employee has been added to the employee tracker database.")
         appProcess();     
     }) 
 }
@@ -186,11 +199,13 @@ async function addRole(){
             type: "input",
             name: "title",
             message: "What is the title of the role?",
+            validate: validateEmptyString,
         },  
         {
             type: "input",
             name: "salary",
             message: "What is the salary of the role?",
+            validate: validateEmptyAndNumeric,            
         },
         {
             type: "list",
@@ -212,6 +227,7 @@ async function addDepartment(){
             type: "input",
             name: "name",
             message: "What is the name of the department?",
+            validate: validateEmptyString,            
         },  
     ])
     .then(function(answer) {
@@ -332,6 +348,7 @@ async function viewBudgetByDepartment() {
     .then(async function(answer) {
         //console.log(answer);
         const returnValue = await data.viewBudgetByDepartment(answer.id); 
+        // console.log(returnValue)
         const mappedReturn = returnValue.map(({ name, totalSalary }) => ({    
              name: name,
              total: totalSalary
@@ -340,4 +357,25 @@ async function viewBudgetByDepartment() {
         console.log(`The ${mappedReturn[0].name} department's total budget is $ ${mappedReturn[0].total}.`)
         appProcess();     
     }) 
+}
+
+function validateEmptyString(name){
+    if (name == '') {
+        return 'Please enter a value';
+    }
+    else {
+        return true;
+    }
+}    
+
+const validateEmptyAndNumeric = (value) => {
+    if (value == '') {
+        return 'Please enter a value';
+    }
+    else if (isNaN(value)) {
+        return 'Please enter number'
+    }
+    else {
+        return true;
+    }
 }

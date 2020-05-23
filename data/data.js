@@ -56,6 +56,12 @@ class Data {
         return this.connection.query("insert into employee SET ?", answer)
     }
 
+    addEmployeeNoManager(answer) {        
+        return this.connection.query("insert into employee (first_name, last_name, role_id) values (?,?,?)", [ answer.first_name, answer.last_name, answer.role_id ] )
+        //insert into employee(first_name, last_name, role_id)
+        //values ("test","test",1);
+    }    
+
     addRole(answer) {
         return this.connection.query("insert into role SET ?", answer)
     }    
