@@ -37,6 +37,8 @@ async function appProcess() {
                 "Add Role",
                 "Add Department",
                 "Delete Employee",
+                "Delete Role",
+                "Delete Department",                
                 "Update Employee's Role", 
                 "Update Employee's Manager",
                 "View Budget of Department",
@@ -69,7 +71,13 @@ async function appProcess() {
                 break;
             case "Delete Employee":
                 deleteEmployee();
-                break;                
+                break;
+            case "Delete Role":
+                deleteRole();
+                break;
+            case "Delete Department":
+                deleteDepartment();
+                break;                                                
             case "Update Employee's Role":
                 updateEmployeeRole();
                 break;
@@ -259,6 +267,63 @@ async function deleteEmployee(){
     }) 
 }
 
+//*********************************************** */
+async function deleteRole(){
+    let getRoles = await data.getRoles();
+    const roleChoices = getRoles.map(({ title, id }) => ({
+        name: title,
+        value: id
+    }));
+
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "id",
+            message: "Which role would you like to delete?",
+            choices: roleChoices
+        },
+    ])
+    .then(async function(answer) {
+        await data.deleteEmployeByRole(answer.id);
+        await data.deleteRole(answer.id)     
+        console.log("The role, along with all employees with that role have been deleted.")
+        appProcess();     
+    }) 
+}
+
+async function deleteDepartment(){
+    let getDepartments = await data.getDepartments();
+    const departmentChoice = getDepartments.map(({ name, id }) => ({
+        name: name,
+        value: id
+    }));
+
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "id",
+            message: "Which department would you like to delete?",
+            choices: departmentChoice
+        },
+    ])
+    .then(async function(answer) {
+        let rolesByDepartment = await data.getRolesByDepartment(answer.id);        
+        //let rolesToDelete = [];
+        for (i=0; i<rolesByDepartment.length; i++){
+            //rolesToDelete.push(rolesByDepartment[i].id);
+            await data.deleteEmployeByRole(rolesByDepartment[i].id);
+        }
+
+        //supposedly, adding all values to an array, 'in' statements can be used, but this didnt work
+        //for some reason.  So, I dropped back and punted and deleted each employee in a loop above
+        //await data.deleteEmployeByMultiRole(rolesToDelete);
+        await data.deleteRolesByDepartment(answer.id);
+        await data.deleteDepartment(answer.id);
+        console.log("The department, along with all roles and employees in that department have been deleted.")
+        appProcess();     
+    }) 
+}
+//*********************************************** */
 async function updateEmployeeRole(){
     let getEmployees = await data.getEmployeeNamesAndIds();
     const employeeChoice = getEmployees.map(({ Name, id }) => ({

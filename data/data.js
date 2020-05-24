@@ -52,6 +52,12 @@ class Data {
         order by r.title;`)
     };
 
+    getRolesByDepartment(id) {
+        return this.connection.query(`select id
+        from role r
+        where department_id = ?;`,id)
+    };    
+
     addEmployee(answer) {
         return this.connection.query("insert into employee SET ?", answer)
     }
@@ -83,6 +89,27 @@ class Data {
     deleteEmployee(id) {
         return this.connection.query(`delete from employee where id = ?;`,id)                
     }
+
+    deleteEmployeByRole(id) {
+        return this.connection.query(`delete from employee where role_id = ?;`,id)                        
+    }
+
+    // deleteEmployeByMultiRole(ids) {
+    //     console.log(ids);
+    //     return this.connection.query(`delete from employee where role_id in (?);`,ids)                        
+    // }    
+
+    deleteRolesByDepartment(id) {
+        return this.connection.query(`delete from role where department_id = ?;`,id)                        
+    }
+    
+    deleteDepartment(id) {
+        return this.connection.query(`delete from department where id = ?;`,id)                        
+    }    
+
+    deleteRole(id) {
+        return this.connection.query(`delete from role where id = ?;`,id)                        
+    }    
 
     updateEmployeeRole(answer) {
         //console.log(answer.id + " " + answer.role_id)
